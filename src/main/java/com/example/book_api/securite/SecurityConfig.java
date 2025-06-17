@@ -36,7 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/home").permitAll()
                         //Le reste necessite une authentification
                         .anyRequest().authenticated()
-                );
+                )
+                .httpBasic(Customizer.withDefaults()); //Form de connexion
         return http.build();
     }
 
