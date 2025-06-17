@@ -2,11 +2,12 @@ package com.example.book_api.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
+import java.security.Key;
 import java.util.Date;
-
-import static JwtService.EXPIRATION_TIME;
 
 //Service de gestion de JWTs
 @Service
@@ -38,11 +39,31 @@ public String genrateToken(String username) {
             .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 
             //Signature du token
-            .signWith(getSigningKey().SignatureAlgorithm.HS256, SECRET_KEY)
+            .signWith(getSigningKey(),SignatureAlgorithm.HS256)
 
             //Génération finale du token sous forme de chaine compacte
 
             .compact();
-}
+    }
+
+    /**
+     * Méthode utilitaire pour obtenir une clé utilisable par la bibliothèque JJWT.
+     * Elle convertit la chaîne `SECRET_KEY` (en base64) en un objet `Key`.
+     */
+
+    private Key getSigningKey() {
+
+        //Décodage de la clé base64
+        byte [] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+
+        //Construction de la key avec l'algo HMAC-SHA
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    //A faire pour tester
+    // D’autres méthodes peuvent être ajoutées ici, comme :
+    // - validateToken(token)
+    // - extractUsername(token)
+    // - extractExpiration(token)
 
 }
