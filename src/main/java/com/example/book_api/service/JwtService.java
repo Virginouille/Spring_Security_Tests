@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -81,37 +82,48 @@ public String genrateToken(String username) {
                 .getBody(); //ici on récup les données contenues dans le token
     }
 
-/**
- * Méthode générique pour extraire **un seul claim** depuis un token JWT.
- * Elle utilise une fonction (`claimsResolver`) pour dire **quel champ** on veut extraire.
- * Par exemple : `Claims::getSubject` pour le username, `Claims::getExpiration` pour la date.*/
+    /**
+    * Méthode générique pour extraire **un seul claim** depuis un token JWT.
+    * Elle utilise une fonction (`claimsResolver`) pour dire **quel champ** on veut extraire.
+    * Par exemple : `Claims::getSubject` pour le username, `Claims::getExpiration` pour la date.*/
 
-public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
     //On application la fonction passée en paramètre à l'object claims
     return claimsResolver.apply(claims);
-}
+    }
 
 
-/**
- * Extrait le **username** contenu dans le token.
- * En JWT, il est stocké dans le champ `sub` (subject).
- */
-public String extractUsername(String token) {
+    /**
+    * Extrait le **username** contenu dans le token.
+    * En JWT, il est stocké dans le champ `sub` (subject).
+    */
+    public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
-}
+    }
 
-/**Extraire la date d'expiration du token*/
-public Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
-}
+    /**Extraire la date d'expiration du token*/
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
 
-/**
- * Vérifie si le token est **expiré**.
- * On compare la date d’expiration du token à la date actuelle.
- */
+    /**
+    * Vérifie si le token est **expiré**.
+    * On compare la date d’expiration du token à la date actuelle.
+    */
 
-public boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-}
+    public boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    /**
+    * Vérifie si un token est **valide** :
+    * - Le nom d’utilisateur dans le token correspond à celui de l'utilisateur authentifié.
+    * - Le token n’est pas expiré.
+    */
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
 }
