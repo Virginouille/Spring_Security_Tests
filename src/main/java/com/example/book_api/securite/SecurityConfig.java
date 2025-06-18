@@ -29,10 +29,12 @@ public class SecurityConfig {
 
     //Injection de userDetailService
     private final UserDetailsService userDetailsService;
+    private final JwtAuthFilter jwtAuthFilter;
 
     //Constructeur pour l'injection de dépendances
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     //Configuration des droits d'accès
@@ -41,6 +43,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) //Désactive le csrf, propre au statless et au api restful
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/**").permitAll()
                         // 2. Définir les routes publiques
                             .requestMatchers("/api/auth/**").permitAll()
                         // 3. Le reste nécessite une authentification
@@ -51,7 +54,7 @@ public class SecurityConfig {
                             .authenticationProvider(authenticationProvider()) //Optionnel mais recommandé pour plus de sécu et fflexibilité
 
                         // 5. Ajouter notre filtre JWT avant le filtre standard
-                            .addFilter(jwtAuthFilter);
+                            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

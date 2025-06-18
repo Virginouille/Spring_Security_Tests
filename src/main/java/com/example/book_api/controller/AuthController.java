@@ -1,6 +1,7 @@
 package com.example.book_api.controller;
 
 import com.example.book_api.service.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,15 +31,19 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> authenticate(@RequestBody AuthRequest request) {
         //On authentifie l'utilisateur avec le manager de Spring Security
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
 
-        // Si l'authentification réussit, on génère un token// Pas besoin de recharger l'utilisateur,
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-        final String jwt = jwtService.genrateToken(userDetails.getUsername());
+            // Si l'authentification réussit, on génère un token// Pas besoin de recharger l'utilisateur,
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
+            final String jwt = jwtService.genrateToken(userDetails.getUsername());
 
-    return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok(jwt);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(request.username() + request.password());
+        }
 
     }
 }
