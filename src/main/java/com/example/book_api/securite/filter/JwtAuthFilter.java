@@ -33,6 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter { //cet extend pour assu
 /**
  * Méthode appelée automatiquement à chaque requête HTTP.
  * Ce filtre s'exécute une seule fois par requête, car il hérite de `OncePerRequestFilter`.*/
+
+@Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
