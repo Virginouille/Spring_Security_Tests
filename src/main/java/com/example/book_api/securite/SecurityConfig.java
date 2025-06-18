@@ -1,11 +1,18 @@
 package com.example.book_api.securite;
 
+import com.example.book_api.securite.filter.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,32 +20,49 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    //Injection de userDetailService
+    private final UserDetailsService userDetailsService;
+
+    //Constructeur pour l'injection de dépendances
+    public SecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     //Configuration des droits d'accès
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
-
+                .csrf(AbstractHttpConfigurer::disable) //Désactive le csrf, propre au statless et au api restful
                 .authorizeHttpRequests(authz -> authz
-
-
-                        //Les admins peuvent accéder à tout ce qui commence par admin
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        //les utilisateurs authentifiés peuvent voir les profils
-                        .requestMatchers("/profil").authenticated()
-                        //Tous les utilisateur peuvent voir la page home
-                        .requestMatchers("/", "/home").permitAll()
-                        //Le reste necessite une authentification
-                        .anyRequest().authenticated()
+                        // 2. Définir les routes publiques
+                            .requestMatchers("/api/auth/**").permitAll()
+                        // 3. Le reste nécessite une authentification
+                            .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); //Form de connexion
+                        // 4. Définir la gestion de session comme STATELESS
+                            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                            .authenticationProvider(authenticationProvider()) //Optionnel mais recommandé pour plus de sécu et fflexibilité
+
+                        // 5. Ajouter notre filtre JWT avant le filtre standard
+                            .addFilter(jwtAuthFilter);
+
         return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     //Mise en place de passwordEncoder
@@ -47,22 +71,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Définition des utilisateurs user et admin (simule des users et admins)
+    //Le bean AuthenticationManager est nécessaire pour le point d'authentification
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
-
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
