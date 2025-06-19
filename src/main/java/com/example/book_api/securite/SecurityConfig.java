@@ -43,6 +43,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) //Désactive le csrf, propre au statless et au api restful
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").permitAll()
                         // 2. Définir les routes publiques
                             .requestMatchers("/api/auth/**").permitAll()

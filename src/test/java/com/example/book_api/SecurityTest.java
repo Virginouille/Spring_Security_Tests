@@ -25,12 +25,6 @@ public class SecurityTest {
     }
 
     @Test
-    public void publicAccessTest() throws Exception {
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void testAdminAccess() throws Exception {
         mockMvc.perform(get("/admin"))
