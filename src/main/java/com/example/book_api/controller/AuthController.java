@@ -42,7 +42,7 @@ public class AuthController {
 
             return ResponseEntity.ok(jwt);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(request.username() + request.password());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(request.username() + " " + request.password());
         }
 
     }
