@@ -18,7 +18,7 @@ public class JwtService {
 
     //Clé secrete utilisée pour signer le JWT attention ne pas faire ça en prod
     //il faut utiliser un fichier de configuration sécurisé (.properties ou .yml) et une clé bi en plus robuste
-    private static final String SECRET_KEY = "une_super_cle_secrete_tres_longue_et_complexe";
+    private static final String SECRET_KEY = "dCGl4vh7XheffkTozKq7rrPrku+SnUL6dDtEZsAv5Tw=";
 
     //Ici, durée validité token exprimé en ms
     private static final long EXPIRATION_TIME = 1000 * 60 * 10;
