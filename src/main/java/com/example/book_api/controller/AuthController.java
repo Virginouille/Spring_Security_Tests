@@ -1,5 +1,6 @@
 package com.example.book_api.controller;
 
+import com.example.book_api.service.AccessTokenService;
 import com.example.book_api.service.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,15 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final AccessTokenService accessTokenService;
 
 
     //Injection des dépendences
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserDetailsService userDetailsService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserDetailsService userDetailsService, AccessTokenService accessTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.accessTokenService = accessTokenService;
     }
 
     @PostMapping("/login")
@@ -36,11 +39,11 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.username(), request.password())
             );
 
-            // Si l'authentification réussit, on génère un token// Pas besoin de recharger l'utilisateur,
+            // Si l'authentification réussit, on génère un acces token// Pas besoin de recharger l'utilisateur,
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-            final String jwt = jwtService.generateToken(userDetails.getUsername());
+            final String accessToken = accessTokenService.generateAccessToken(userDetails.getUsername());
 
-            return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok(accessToken);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(request.username() + " " + request.password());
         }
