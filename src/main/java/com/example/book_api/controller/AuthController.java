@@ -38,7 +38,7 @@ public class AuthController {
 
             // Si l'authentification réussit, on génère un token// Pas besoin de recharger l'utilisateur,
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-            final String jwt = jwtService.genrateToken(userDetails.getUsername());
+            final String jwt = jwtService.generateToken(userDetails.getUsername());
 
             return ResponseEntity.ok(jwt);
         } catch (Exception e) {

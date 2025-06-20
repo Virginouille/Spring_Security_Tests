@@ -21,7 +21,7 @@ public class JwtService {
     private static final String SECRET_KEY = "dCGl4vh7XheffkTozKq7rrPrku+SnUL6dDtEZsAv5Tw=";
 
     //Ici, durée validité token exprimé en ms
-    private static final long EXPIRATION_TIME = 1000 * 60 * 10;
+    //private static final long EXPIRATION_TIME = 1000 * 60 * 10;
 
 
 /**
@@ -30,7 +30,7 @@ public class JwtService {
  * et on retourne un token signé.
  */
 
-public String genrateToken(String username) {
+public String generateToken(String username, long expirationMillis) {
     return Jwts.builder()
             //Le subject = identifiant principal à savoir ici le username
             .setSubject(username)
@@ -39,7 +39,7 @@ public String genrateToken(String username) {
             .setIssuedAt(new Date(System.currentTimeMillis()))
 
             //Date d'expiration du token (ici ajout 10 min à la date)
-            .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+            .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))
 
             //Signature du token
             .signWith(getSigningKey(),SignatureAlgorithm.HS256)
