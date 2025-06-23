@@ -54,7 +54,6 @@ public class BookController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteBook(@PathVariable Long id) {
         boolean deleted = bookService.deleteBook(id); // Appeler le service
@@ -64,7 +63,6 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     @GetMapping("/isbn/{isbn}")
     public ResponseEntity<Book> getBookByIsbn(@PathVariable String isbn) {

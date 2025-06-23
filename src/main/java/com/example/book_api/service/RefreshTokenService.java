@@ -41,10 +41,10 @@ public class RefreshTokenService extends JwtService {
     }
 
     /**Méthode suppression RefreshToken*/
-    public void deleteRefreshToken(String token) {
-        tokenRepository.deleteByToken(token);
+    public void deleteRefreshToken(Long token) {
+       tokenRepository.deleteById(token);
     }
-    /**Méthode des tokens actif par utilisateur*/
+    /**Méthode des tokens actifs par utilisateur*/
     public List<RefreshToken> getRefreshTokens(Long userId) {
         return tokenRepository.findByUserIdAndRevokedFalse(userId);
     }
