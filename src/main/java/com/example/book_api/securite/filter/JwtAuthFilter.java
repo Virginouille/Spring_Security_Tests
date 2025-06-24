@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,11 +24,15 @@ public class JwtAuthFilter extends OncePerRequestFilter { //cet extend pour assu
     private final JwtService jwtService;
 
     // Service standard de Spring Security pour charger les informations d’un utilisateur (depuis une BDD ou autre).
-    private final UserDetailsService userDetailsService;
+    private UserDetailsService userDetailsService;
 
     //Injection des dépendances via le constructeur
-    public JwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtService jwtService) {
         this.jwtService = jwtService;
+    }
+
+    @Autowired
+    public void setUserDetaisService(@Lazy UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

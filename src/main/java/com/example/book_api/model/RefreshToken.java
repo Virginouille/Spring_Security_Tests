@@ -12,6 +12,13 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
+
     @Column(name="contenu")
     private String contenu;
+
+    @Column(name="revoked")
+    private boolean revoked;
 }

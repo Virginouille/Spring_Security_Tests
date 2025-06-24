@@ -28,18 +28,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     //Injection de userDetailService
-    private final UserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
     //Constructeur pour l'injection de dépendances
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
     //Configuration des droits d'accès
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //Désactive le csrf, propre au statless et au api restful
                 .authorizeHttpRequests(authz -> authz
@@ -52,7 +50,7 @@ public class SecurityConfig {
                 )
                         // 4. Définir la gestion de session comme STATELESS
                             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                            .authenticationProvider(authenticationProvider()) //Optionnel mais recommandé pour plus de sécu et fflexibilité
+                            .authenticationProvider(authenticationProvider(userDetailsService)) //Optionnel mais recommandé pour plus de sécu et fflexibilité
 
                         // 5. Ajouter notre filtre JWT avant le filtre standard
                             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,7 +60,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());

@@ -34,7 +34,7 @@ public class RefreshTokenService extends JwtService {
 
         boolean jwtStructureValid = this.isTokenValid(refreshToken, userDetails);
 
-        Optional<RefreshToken> storedTokenOpt = tokenRepository.findByToken(refreshToken);
+        Optional<RefreshToken> storedTokenOpt = tokenRepository.findByContenu(refreshToken);
 
         return jwtStructureValid
                 && storedTokenOpt.isPresent();
@@ -46,7 +46,7 @@ public class RefreshTokenService extends JwtService {
     }
     /**Méthode des tokens actifs par utilisateur*/
     public List<RefreshToken> getRefreshTokens(Long userId) {
-        return tokenRepository.findByUserIdAndRevokedFalse(userId);
+        return tokenRepository.findByUserId_AndRevokedFalse(userId);
     }
 
 }
