@@ -39,12 +39,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         http
+                .securityMatcher("/api/**") //uniquement les requêtes sous api
                 .csrf(AbstractHttpConfigurer::disable) //Désactive le csrf, propre au statless et au api restful
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/**").permitAll()
-                        // 2. Définir les routes publiques
-                            .requestMatchers("/api/auth/**").permitAll()
                         // 3. Le reste nécessite une authentification
                             .anyRequest().authenticated()
                 )

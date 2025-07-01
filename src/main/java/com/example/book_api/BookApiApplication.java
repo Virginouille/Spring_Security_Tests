@@ -11,7 +11,4 @@ public class BookApiApplication {
 		SpringApplication.run(BookApiApplication.class, args);
 	}
 
-	Book book1 = new Book("Book 1", "Author 1", "ISBN 1");
-	Book book2 = new Book("Book 2", "Author 2", "ISBN 2");
-	Book book3 = new Book("Book 3", "Author 3", "ISBN 3");
 }
